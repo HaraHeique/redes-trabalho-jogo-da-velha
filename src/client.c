@@ -18,6 +18,8 @@
 #define PORTAPADRAO "4242"
 #define FALSE 0
 #define TRUE 1
+#define MARCADOR_X 'X'
+#define MARCADOR_O 'O'
 
 /* Estruturas do programa */
 
@@ -29,18 +31,24 @@ typedef struct jogador
 } Jogador;
 
 // Estrutura que é trocada entre cliente e servidor
-typedef struct mensagem {
+typedef struct mensagem 
+{
 	Jogador jogador;
-    char informacoes[100];
-} Message;
+    char tabuleiro[3][3];
+    char informacoes[256];
+    int jogada;
+    int fimDeJogo;
+} Mensagem;
 
 /* Protótipo das funções utilizadas */
 void criaJogador(Jogador* jogador);
 int isAllDigit(char *strDigit);
 void pularLinhas(int qntLinhas);
+void printJogoVelha(char campo[3][3]);
 
 /* Esta função reporta erro e finaliza do programa */	
-static void	bail(const char *on_what) {	
+static void	bail(const char *on_what) 
+{	
     if ( errno != 0 ) {	
         fputs(strerror(errno),stderr);	
         fputs("	 ",stderr);
@@ -59,8 +67,10 @@ int main(int argc,char *argv[]) {
     int len_inet; /* comprimento */
     int s; /* Socket */
     int vencedor = FALSE;
-    Message msg; /* variavel utilizada para armazernar os dados da estrutura */        
-        
+    Mensagem msg; /* variavel utilizada para armazernar os dados da estrutura */        
+    int mapaCampoJogoVelha[9][2];
+    int cellSelecionada;
+
     /* Cria um socket do tipo TCP */		
     s = socket(PF_INET,SOCK_STREAM,0);		
     if ( s == -1 )
@@ -79,9 +89,6 @@ int main(int argc,char *argv[]) {
         bail("bad address.");
     }
 
-    // Passa o jogador como argumento para pegar seu nome
-    criaJogador(&msg.jogador);
-
     /* Conecta com o servidor */
     len_inet = sizeof adr_srvr;
 
@@ -91,8 +98,11 @@ int main(int argc,char *argv[]) {
         bail("\nNão é possível conectar com o servidor. Provavelmente ele está offline.");
     }
 
+    // Passa o jogador como argumento para pegar seu nome
+    criaJogador(&msg.jogador);
+
     /* Escreve na mensagem inicial que é mandando seu nome para o socket do servidor */
-    z = write(s, (const void *)&msg, sizeof(Message));
+    z = write(s, (const void *)&msg, sizeof(Mensagem));
     if (z == -1)
     {
         bail("write(2): It's not possible to write on socket.");
@@ -100,37 +110,44 @@ int main(int argc,char *argv[]) {
 
     /* Após cliente se conectar com o server lê as informações com a mensagem de 
     boas vindas proveniente do servidor */
-    z = read(s, &msg, sizeof(Message));
+    z = read(s, &msg, sizeof(Mensagem));
     if ( z == -1 )
     {
         bail("read(2)");
     }
 
-    // Mensagem de boas-vindas proveniente do cliente
+    // Mensagem de boas-vindas proveniente do servidor
     pularLinhas(1);
     puts(msg.informacoes);
     pularLinhas(2);
+    
+    printf("%d", msg.fimDeJogo);
 
-    exit(1);
-
-    while (vencedor == FALSE) 
+    while (!msg.fimDeJogo) 
     {
-        /* Escreve a mensagem para o socket do servidor */
-        z = write(s, (const void *)&msg, sizeof(Message));
-        if (z == -1)
+        z = read(s, &msg, sizeof(Mensagem));
+        if ( z == -1 )
         {
-            bail("write(2): It's not possible to write on socket.");
-        }
-
-        /* Lê as informações */
-        z = read(s, &msg, sizeof(Message));
-        if ( z == -1 ){
             bail("read(2)");
         }
-        // printf("%s\n", msg.jogador.nome);
+
+        printf("%s\n", msg.informacoes);
+        printJogoVelha(msg.tabuleiro);
+        pularLinhas(1);
+        printf("%d\n", msg.fimDeJogo);
+
+        if(!msg.fimDeJogo){
+            printf("Faça a sua jogada: ");
+            scanf("%d", &msg.jogada);
+            z = write(s, (const void *)&msg, sizeof(Mensagem));
+            if (z == -1)
+            {
+                bail("write(2): It's not possible to write on socket.");
+            }
+        }else{
+            printf("FIM DE JOGO\n");
+        }
         
-        // printf("Digite 1 pra sair.\n");
-        // scanf("%d", &vencedor);
     }
 
     /* Fecha o socket */	
@@ -179,6 +196,33 @@ void pularLinhas(int qntLinhas)
 {
     for (int i = 0; i < qntLinhas; i++) 
     {
+        printf("\n");
+    }
+}
+
+// Printar a matriz com um layout legal
+void printJogoVelha(char campo[3][3]) 
+{
+    int numCell = 1;
+
+    for (int i = 0; i < 3; i++) 
+    {
+        printf("|");
+
+        for (int j = 0; j < 3; j++) 
+        {
+            // Caso a célula do campo esteja nulo é porque não foi jogado pelo jogador ainda, logo coloca sua enumeração
+            if (campo[i][j] != MARCADOR_X && campo[i][j] != MARCADOR_O)
+            {
+                printf("%d", numCell);
+            }
+            else 
+            {
+                printf("%c", campo[i][j]);
+            }
+            printf("|");
+            numCell++;
+        }
         printf("\n");
     }
 }
