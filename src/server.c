@@ -213,11 +213,21 @@ int main(int argc,char **argv)
                 msg.fimDeJogo = TRUE;
             }
             nextJogador = setNextJogador(nextJogador);
-            printf("\n\nJOGADA: %d\n", msg.jogada);
-            printf("NEXT: %d\n", nextJogador);
-            printf("AUX: %d\n", aux);
-            printf("FIM DE JOGO: %d\n", msg.fimDeJogo);
 		}
+
+        printf("FIM DE JOGO\n");
+
+        z = write(jog[0], (const void *) &msg, sizeof(Mensagem));
+        if ( z == -1 )
+        {
+            bail("write(3)");
+        }
+
+        z = write(jog[1], (const void *) &msg, sizeof(Mensagem));
+        if ( z == -1 )
+        {
+            bail("write(3)");
+        }
 
          /* Fecha a conexão com o cliente depois que o jogo acaba */
         close(jog[0]);

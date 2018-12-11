@@ -120,8 +120,6 @@ int main(int argc,char *argv[]) {
     pularLinhas(1);
     puts(msg.informacoes);
     pularLinhas(2);
-    
-    printf("%d", msg.fimDeJogo);
 
     while (!msg.fimDeJogo) 
     {
@@ -131,10 +129,9 @@ int main(int argc,char *argv[]) {
             bail("read(2)");
         }
 
-        printf("%s\n", msg.informacoes);
+        puts(msg.informacoes);
         printJogoVelha(msg.tabuleiro);
         pularLinhas(1);
-        printf("%d\n", msg.fimDeJogo);
 
         if(!msg.fimDeJogo){
             printf("Faça a sua jogada: ");
