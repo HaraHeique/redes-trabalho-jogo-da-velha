@@ -58,24 +58,25 @@ em outros ambientes/SO's possivelmente terá problemas.
 	disponíveis no jogo da velha que são enumeradas de 1 a 9. Um ponto importante é que todas
 	as entradas de dados realizadas pelos jogadores/usuários são validadas pelo software. 
 
+- Como finalizar a execução do software:
+
 	6) Para finalizar a execução tanto do cliente quanto do servidor use o comando 
 	Ctrl + c. Outra maneira de finalizar o cliente é também terminando o jogo, o qual
 	é necessário iniciá-lo novamente, seguindo praticamente os mesmos passos discutidos
 	nas etapas 4 e 5.
 
-- Como visualizar o arquivo de registro?
-	
-	7) Para visualizar o arquivo de registro pode-se fazer das seguintes maneiras:
-		
-		- A partir do terminal Linux em que foi executado o cliente vá até a pasta database
-		utilizando o comando cd database seguido do comando cat logDeRegistros.txt, assim
-		aparecerá no terminal todos os registros de tentativa dos usuários;
-		- A outra maneira é pela interface gráfica, onde basta entrar na pasta database e
-		selecionar e executar o arquivo logDeRegistros.txt;
-
 - Considerações:
-	Pode checar o trabalho inteiro pelo repositório remoto do github, onde os contribuidores
+	No trabalho existe um diretório chamado teste_locais, onde nele contém um arquivo
+	chamado jogo_velha_local.c, onde nele contém toda lógica do jogo da velha, mas não
+	em uma aplicação distribuída client/server, mas serviu totalmente como base para a
+	elaboração do trabalho. Logo a dupla implementou primeiro a lógica do jogo para depois
+	aplicá-lo em uma estrutura distribuída do tipo client/server. Para compilá-lo e executá-lo 
+	basta seguir os seguintes passos:
+		* gcc -o jogo_velha_local.exe jogo_velha_local.c
+		* ./jogo_velha_local.exe
+
+	Pode checar o trabalho inteiro pelo repositório remoto no github, onde os contribuidores
 	são: Harã Heique e Marcos Carneiro. Abaixo está o link:
 
-	https://github.com/cardepaula/redes-trabalho-socket
+	https://github.com/HaraHeique/redes-trabalho-jogo-da-velha
 
