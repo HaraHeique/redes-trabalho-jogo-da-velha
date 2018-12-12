@@ -21,6 +21,7 @@
 #define FALSE 0
 #define TRUE 1
 #define QNTJOGADORES 2
+#define QNTJOGADAS_DEUVELHA 9
 
 /* Estruturas do programa */
 
@@ -168,10 +169,13 @@ int main(int argc,char **argv)
 		}
         jogadores[1] = msg.jogador;
 
+        // Define os marcadores de X e O para os jogadores
         defineMarcador(jogadores);
 
-        msg.jogador = jogadores[1];
         msg.fimDeJogo = FALSE;
+
+        // Preenche as mensagens de boas vindas e manda para os clientes/jogadores
+        msg.jogador = jogadores[1];
         preencheMensagemBoasVindas(&msg, &jogadores[0]);
 		z = write(jog[1],(const void *) &msg,sizeof(Mensagem));
 		if ( z == -1 )
@@ -187,6 +191,7 @@ int main(int argc,char **argv)
 			bail("write(2)");
 		}
 
+        // Limpa o campo do tabuleiro, pois quando se cria uma matriz ela vem preenchida com "lixo"
         flushCampoJogoVelha(msg.tabuleiro);
         int aux = 0;
 
