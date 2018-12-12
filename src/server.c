@@ -173,6 +173,7 @@ int main(int argc,char **argv)
 
         // Define os marcadores de X e O para os jogadores
         defineMarcador(jogadores);
+
         // Limpa o campo do tabuleiro, pois quando se cria uma matriz ela vem preenchida com "lixo"
         flushCampoJogoVelha(msg.tabuleiro);
         mapearCampoJogoVelha(msg.mapaCampoJogoVelha);
@@ -199,6 +200,7 @@ int main(int argc,char **argv)
 
 		/* Fica em um loop até que haja um vencedor no jogo */
         qntRodadas = 0;
+
 		while (!msg.fimDeJogo)
 		{
             strcpy(msg.informacoes, "Sua vez.\n");
@@ -210,7 +212,6 @@ int main(int argc,char **argv)
 			{
 				bail("write(3)");
 			}
-            
 
 			/* Esperando a jogada */
 			z = read(jog[nextJogador], &msg, sizeof(Mensagem));
@@ -229,6 +230,7 @@ int main(int argc,char **argv)
 
                 printJogoVelha(msg.tabuleiro);
                 pularLinhas(1);
+                strcat(msg.informacoes, "\n");
                 strcat(msg.informacoes, jogadores[nextJogador].nome);
                 strcat(msg.informacoes, " GANHOU A PARTIDA com o marcador ");
 
@@ -243,8 +245,7 @@ int main(int argc,char **argv)
 
             // Caso número de rodadas cheguem a 9 é porque ninguém ganha. Logo deu velha
             if (++qntRodadas == QNTJOGADAS_DEUVELHA)
-            {
-                printf("GANHOU... EXPERIENCIA!!\n");
+            {                
                 msg.fimDeJogo = TRUE;
 
                 printJogoVelha(msg.tabuleiro);
@@ -276,8 +277,6 @@ int main(int argc,char **argv)
         close(jog[0]);
         close(jog[1]);
 	}
-
-   
 
 	return 0;
 }
@@ -465,16 +464,6 @@ void atualizarCampoJogoVelha(Jogador jogador, int cellSelecionada, char campoJog
 // Checar se algum jogador ganhou a partida
 int checkGanharPartida(char campoJogoVelha[3][3]) 
 {
-    for(int i = 0; i < 3; i++)
-    {
-        printf("\n");
-        for(int j = 0; j < 3; j++)
-        {
-            printf("%d:%d | %d --", i,j, campoJogoVelha[i][j]);
-        }
-        
-    }
-    
     // Checando diagonal principal
     if (campoJogoVelha[0][0] == campoJogoVelha[1][1] && campoJogoVelha[1][1] == campoJogoVelha[2][2]) 
     {
@@ -524,6 +513,7 @@ void flushCampoJogoVelha(char campoJogoVelha[3][3])
     }
 }
 
+// Printa a matriz para testes principalmente
 void printMatriz(int matriz[][3] ){
 
     for(int i = 0; i < 3; i++)

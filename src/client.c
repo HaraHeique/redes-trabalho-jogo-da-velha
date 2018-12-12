@@ -50,7 +50,6 @@ void printJogoVelha(char campo[3][3]);
 int selecinarCell(char campoJogoVelha[3][3], int mapaCampoJogoVelha[9][2]);
 int isCellSelecionada(int cellSelecionada, char campoJogoVelha[3][3], int mapaCampoJogoVelha[9][2]);
 
-
 /* Esta função reporta erro e finaliza do programa */	
 static void	bail(const char *on_what) 
 {	
@@ -125,9 +124,8 @@ int main(int argc,char *argv[]) {
     pularLinhas(1);
     puts(msg.informacoes);
     pularLinhas(2);
-
     
-    do{
+    do {
         z = read(s, &msg, sizeof(Mensagem));
         if ( z == -1 )
         {
