@@ -35,7 +35,7 @@ em outros ambientes/SO's possivelmente terá problemas.
 	   4.1) Primeiro execute o server.exe, pois ele é o servidor e não tem como o
 	   cliente se conectar ao servidor sem ele estar em funcionamento. Para
 	   executar o servidor insera o seguinte comando no terminal linux:
-		* ./serverside.exe
+		* ./server.exe
 
 	   4.2) Após isso abra um outro terminal Linux no mesmo diretório que compilou
 	   e executou o server.exe e execute o arquivo client-1.exe da seguinte
