@@ -6,3 +6,77 @@
   <img src="https://github.com/HaraHeique/redes-trabalho-jogo-da-velha/blob/master/imagens/oldcat.jpg" alt="sohCatxD2" title="sohCatxD2" width="400px" height="300px">
 </div>
 
+
+## Tutorial de executar os códigos com sucesso!
+    OBS.: O tutorial vai ser feito com o foco no ambiente Linux, pois nele que foi
+    desenvolvido toda a implementação do trabalho. Logo se for usar o mesmo tutorial
+    em outros ambientes/SO's possivelmente terá problemas.
+    
+#### Compilação dos arquivos .c:
+
+    Os arquivos server.c e client.c são os códigos fontes que contém as
+    codificações realizadas. Para compilá-los siga os seguintes passos:
+
+    1) Abra o terminal Linux exatamente no diretório chamado src, onde se encontra os 
+    arquivos .c (server.c e client.c) ou abra o terminal Linux em qualquer local
+    de sua máquina e vá até o diretório src onde se encontram os arquivos 
+    utilizando o comando cd do Linux;
+
+    2) Compile o arquivo server.c no terminal da seguinte maneira:
+        * gcc -o server.exe server.c
+
+    3) Compile o arquivo client.c duas vezes no terminal das seguintes maneiras:
+        * gcc -o client-1.exe client.c
+        * gcc -o client-2.exe client.c
+
+    É necessário fazer sua compilação duas vezes pois o client-1.exe representa
+    um jogador e o client-2.exe representa o outro jogador, os quais são adversários.
+    
+#### Como executar os arquivos .exe:
+
+    4) Perceba que no mesmo diretório surgirá três arquivos executáveis (.exe)
+    chamados server.exe, client-1.exe e client-2.exe. Para executá-los faça 
+    os seguinte passos:
+
+    4.1) Primeiro execute o server.exe, pois ele é o servidor e não tem como o
+    cliente se conectar ao servidor sem ele estar em funcionamento. Para
+    executar o servidor insera o seguinte comando no terminal linux:
+        * ./server.exe
+
+    4.2) Após isso abra um outro terminal Linux no mesmo diretório que compilou
+    e executou o server.exe e execute o arquivo client-1.exe da seguinte
+    maneira:
+        * ./client-1.exe
+
+    4.3) Seguindo os mesmos passos da etapa 4.2) abra outro terminal linux e execute
+    o arquivo client-2.exe da seguinte maneira:
+        * ./client-2.exe	   
+
+    OBS.: Haverá três terminais linux abertos:
+    * Servidor, que é responsável por gerenciar o jogo da velha;
+    * Cliente 1, que é basicamente um jogador;
+    * Cliente 2, que também é um jogador, porém adversário do cliente 1;
+    
+    5) Após realizar essas 4 etapas com sucesso verá que os softwares dos clientes guiará
+    através da interface pedindo nome dos jogadores a priore, em ambos os terminais, e logo
+    depois o início do jogo, onde o jogadores em cada um de seus terminais escolhem as células
+    disponíveis no jogo da velha que são enumeradas de 1 a 9. Um ponto importante é que todas
+    as entradas de dados realizadas pelos jogadores/usuários são validadas pelo software.
+    
+#### Como finalizar a execução do software:
+
+    6) Para finalizar a execução tanto do cliente quanto do servidor use o comando 
+    Ctrl + c. Outra maneira de finalizar o cliente é também terminando o jogo, o qual
+    é necessário iniciá-lo novamente, seguindo praticamente os mesmos passos discutidos
+    nas etapas 4 e 5.
+
+#### Considerações:
+
+    No trabalho existe um diretório chamado teste_locais, onde nele contém um arquivo
+    chamado jogo_velha_local.c, onde nele contém toda lógica do jogo da velha, mas não
+    em uma aplicação distribuída client/server, mas serviu totalmente como base para a
+    elaboração do trabalho. Logo a dupla implementou primeiro a lógica do jogo para depois
+    aplicá-lo em uma estrutura distribuída do tipo client/server. Para compilá-lo e executá-lo 
+    basta seguir os seguintes passos:
+        * gcc -o jogo_velha_local.exe jogo_velha_local.c
+        * ./jogo_velha_local.exe
