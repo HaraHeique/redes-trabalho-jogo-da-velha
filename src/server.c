@@ -37,9 +37,11 @@ typedef struct mensagem
 {
 	Jogador jogador;
     char tabuleiro[3][3];
+    int mapaCampoJogoVelha[9][2];
 	char informacoes[256];
     int jogada;
     int fimDeJogo;
+    char adversario[50];
 } Mensagem;
 
 /* Protótipo das funções utilizadas */
@@ -171,6 +173,9 @@ int main(int argc,char **argv)
 
         // Define os marcadores de X e O para os jogadores
         defineMarcador(jogadores);
+        // Limpa o campo do tabuleiro, pois quando se cria uma matriz ela vem preenchida com "lixo"
+        flushCampoJogoVelha(msg.tabuleiro);
+        mapearCampoJogoVelha(msg.mapaCampoJogoVelha);
 
         msg.fimDeJogo = FALSE;
 
@@ -184,6 +189,7 @@ int main(int argc,char **argv)
 		}
 
         msg.jogador = jogadores[0];
+        strcpy(msg.adversario, jogadores[1].nome);
 		preencheMensagemBoasVindas(&msg, &jogadores[1]); 
 		z = write(jog[0], (const void *) &msg, sizeof(Mensagem));
 		if ( z == -1 )
@@ -191,20 +197,20 @@ int main(int argc,char **argv)
 			bail("write(2)");
 		}
 
-        // Limpa o campo do tabuleiro, pois quando se cria uma matriz ela vem preenchida com "lixo"
-        flushCampoJogoVelha(msg.tabuleiro);
-        int aux = 0;
-
 		/* Fica em um loop até que haja um vencedor no jogo */
+        qntRodadas = 0;
 		while (!msg.fimDeJogo)
 		{
-            printf("A\n");
-            strcpy(msg.informacoes, "Sua vez.");
+            strcpy(msg.informacoes, "Sua vez.\n");
+            strcat(msg.informacoes, "Oponente: ");
+            strcat(msg.informacoes, msg.adversario);
+            strcat(msg.informacoes, "\n");
             z = write(jog[nextJogador], (const void *) &msg, sizeof(Mensagem));
 			if ( z == -1 )
 			{
 				bail("write(3)");
 			}
+            
 
 			/* Esperando a jogada */
 			z = read(jog[nextJogador], &msg, sizeof(Mensagem));
@@ -212,12 +218,44 @@ int main(int argc,char **argv)
 			{
 				bail("read(3): It's not possible to read the socket");
 			}
-            
-            aux++;
-            if (aux == 4){
+
+            atualizarCampoJogoVelha(jogadores[nextJogador], msg.jogada, msg.tabuleiro, msg.mapaCampoJogoVelha);
+
+            // Caso alguém tenha ganhado a partida mostra quem foi o vencedor
+            if (checkGanharPartida(msg.tabuleiro)) 
+            {
+                printf("GANHOU\n");
                 msg.fimDeJogo = TRUE;
+
+                printJogoVelha(msg.tabuleiro);
+                pularLinhas(1);
+                strcat(msg.informacoes, jogadores[nextJogador].nome);
+                strcat(msg.informacoes, " GANHOU A PARTIDA com o marcador ");
+
+                size_t cur_len = strlen(msg.informacoes);
+                msg.informacoes[cur_len] = msg.jogador.markJogoVelha;
+                msg.informacoes[cur_len+1] = '\0';
+
+                strcat(msg.informacoes, ". Parabains!");
+                pularLinhas(2);
+                continue;
             }
+
+            // Caso número de rodadas cheguem a 9 é porque ninguém ganha. Logo deu velha
+            if (++qntRodadas == QNTJOGADAS_DEUVELHA)
+            {
+                printf("GANHOU... EXPERIENCIA!!\n");
+                msg.fimDeJogo = TRUE;
+
+                printJogoVelha(msg.tabuleiro);
+                pularLinhas(1);
+                strcpy(msg.informacoes, "DEU VELHA. Ninguém ganhou o jogo :(.");
+                pularLinhas(2);
+                continue;
+            }
+            strcpy(msg.adversario, jogadores[nextJogador].nome);
             nextJogador = setNextJogador(nextJogador);
+            msg.jogador = jogadores[nextJogador];
 		}
 
         printf("FIM DE JOGO\n");
@@ -427,15 +465,27 @@ void atualizarCampoJogoVelha(Jogador jogador, int cellSelecionada, char campoJog
 // Checar se algum jogador ganhou a partida
 int checkGanharPartida(char campoJogoVelha[3][3]) 
 {
+    for(int i = 0; i < 3; i++)
+    {
+        printf("\n");
+        for(int j = 0; j < 3; j++)
+        {
+            printf("%d:%d | %d --", i,j, campoJogoVelha[i][j]);
+        }
+        
+    }
+    
     // Checando diagonal principal
     if (campoJogoVelha[0][0] == campoJogoVelha[1][1] && campoJogoVelha[1][1] == campoJogoVelha[2][2]) 
     {
+        printf("A\n");
         return TRUE;
     }
 
     // Checando a diagonal secundária
     if (campoJogoVelha[0][2] == campoJogoVelha[1][1] && campoJogoVelha[1][1] == campoJogoVelha[2][0]) 
     {
+        printf("B\n");
         return TRUE;
     }
 
@@ -445,12 +495,14 @@ int checkGanharPartida(char campoJogoVelha[3][3])
         // Checar as linhas horizontais
         if (campoJogoVelha[i][0] == campoJogoVelha[i][1] && campoJogoVelha[i][1] == campoJogoVelha[i][2]) 
         {
+            printf("C\n");
             return TRUE;
         }
 
         // Checar as linhas verticais
         if (campoJogoVelha[0][i] == campoJogoVelha[1][i] && campoJogoVelha[1][i] == campoJogoVelha[2][i]) 
         {
+            printf("D\n");
             return TRUE;
         }
     }
@@ -469,5 +521,18 @@ void flushCampoJogoVelha(char campoJogoVelha[3][3])
         {
             campoJogoVelha[i][j] = caracter++;
         }
+    }
+}
+
+void printMatriz(int matriz[][3] ){
+
+    for(int i = 0; i < 3; i++)
+    {
+        printf("\n");
+        for(int j = 0; j < 3; j++)
+        {
+            printf("%d:%d | %d --", i,j, matriz[i][j]);
+        }
+        
     }
 }

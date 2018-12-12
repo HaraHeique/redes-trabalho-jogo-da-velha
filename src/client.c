@@ -35,9 +35,11 @@ typedef struct mensagem
 {
 	Jogador jogador;
     char tabuleiro[3][3];
+    int mapaCampoJogoVelha[9][2];
     char informacoes[256];
     int jogada;
     int fimDeJogo;
+    char adversario[50];
 } Mensagem;
 
 /* Protótipo das funções utilizadas */
@@ -45,6 +47,9 @@ void criaJogador(Jogador* jogador);
 int isAllDigit(char *strDigit);
 void pularLinhas(int qntLinhas);
 void printJogoVelha(char campo[3][3]);
+int selecinarCell(char campoJogoVelha[3][3], int mapaCampoJogoVelha[9][2]);
+int isCellSelecionada(int cellSelecionada, char campoJogoVelha[3][3], int mapaCampoJogoVelha[9][2]);
+
 
 /* Esta função reporta erro e finaliza do programa */	
 static void	bail(const char *on_what) 
@@ -68,8 +73,6 @@ int main(int argc,char *argv[]) {
     int s; /* Socket */
     int vencedor = FALSE;
     Mensagem msg; /* variavel utilizada para armazernar os dados da estrutura */        
-    int mapaCampoJogoVelha[9][2];
-    int cellSelecionada;
 
     /* Cria um socket do tipo TCP */		
     s = socket(PF_INET,SOCK_STREAM,0);		
@@ -116,13 +119,15 @@ int main(int argc,char *argv[]) {
         bail("read(2)");
     }
 
+    printf("-----------INICIO DA PARTIDA-----------\n");
+
     // Mensagem de boas-vindas proveniente do servidor
     pularLinhas(1);
     puts(msg.informacoes);
     pularLinhas(2);
 
-    while (!msg.fimDeJogo) 
-    {
+    
+    do{
         z = read(s, &msg, sizeof(Mensagem));
         if ( z == -1 )
         {
@@ -134,8 +139,8 @@ int main(int argc,char *argv[]) {
         pularLinhas(1);
 
         if(!msg.fimDeJogo){
-            printf("Faça a sua jogada: ");
-            scanf("%d", &msg.jogada);
+            msg.jogada = selecinarCell(msg.tabuleiro, msg.mapaCampoJogoVelha);
+            pularLinhas(2);
             z = write(s, (const void *)&msg, sizeof(Mensagem));
             if (z == -1)
             {
@@ -145,7 +150,7 @@ int main(int argc,char *argv[]) {
             printf("FIM DE JOGO\n");
         }
         
-    }
+    }while (!msg.fimDeJogo);
 
     /* Fecha o socket */	
     close(s);	
@@ -222,4 +227,55 @@ void printJogoVelha(char campo[3][3])
         }
         printf("\n");
     }
+}
+
+// O jogador escolhe a célula campo que deseja jogar
+int selecinarCell(char campoJogoVelha[3][3], int mapaCampoJogoVelha[9][2]) 
+{
+    char strCell[10];
+    int cellSelecionada;
+    int digitarNovamente;
+
+    printf("Escolha o número da célula correspondente ao local que deseja jogar: ");
+    scanf("%s", strCell);
+
+    do {
+        digitarNovamente = 0;
+
+        // Caso o jogador não digite número ou que não esteja no range de 1 a 9
+        while (strlen(strCell) > 1 || strCell[0] == '0' || !isdigit(strCell[0]))
+        {
+            printf("Favor digite somente dígitos numéricos de 1 a 9 que representam as células.\n");
+            printf("Escolha o número da célula novamente: ");
+            scanf("%s", strCell);
+        }
+
+        // Caso o jogador digite uma célula já selecionada
+        cellSelecionada = atoi(strCell);
+
+        if (isCellSelecionada(cellSelecionada, campoJogoVelha, mapaCampoJogoVelha)) 
+        {
+            printf("Célula já selecionada. Favor escolha as dispiníveis que são os dígitos numéricos.\n");
+            printf("Escolha o número da célula novamente: ");
+            scanf("%s", strCell);
+            digitarNovamente = 1;
+        }
+
+    } while(digitarNovamente);
+	
+    return cellSelecionada;
+}
+
+// Checa se a célula selecionada já foi previamente selecionada em jogadas anteriores
+int isCellSelecionada(int cellSelecionada, char campoJogoVelha[3][3], int mapaCampoJogoVelha[9][2]) 
+{
+    int lin = mapaCampoJogoVelha[cellSelecionada-1][0];
+    int col = mapaCampoJogoVelha[cellSelecionada-1][1];
+
+    if (campoJogoVelha[lin][col] == MARCADOR_X || campoJogoVelha[lin][col] == MARCADOR_O) 
+    {
+        return TRUE;
+    }
+
+    return FALSE;
 }
